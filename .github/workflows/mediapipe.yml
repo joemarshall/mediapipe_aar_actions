@@ -51,7 +51,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./mediapipe
-          file: Dockerfile
+          file: mediapipe/Dockerfile
           push: false
           load: true
           cache-from: type=local,src=dockercache
