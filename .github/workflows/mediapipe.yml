@@ -29,18 +29,15 @@ jobs:
         id: get_mp_hash
         run: cd mediapipe && echo "VERSION=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
-      - name: Retrieve docker layers 
-        uses: actions/cache@v4
+      - name: Restore docker layer cache
+        uses: actions/cache/restore@v4
+        id: restore-cache
         with:
           path: |
             dockercache
           key: ${{ runner.os }}-mediapipe-docker-${{ steps.get_mp_hash.outputs.VERSION }}
-
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
-
       - name: Make sure docker cache folder exists
         run: mkdir -p dockercache
       - name: Build mediapipe docker image
@@ -53,7 +50,10 @@ jobs:
           tag: mediapipe
           cache-from: type=local,src=dockercache
           cache-to: type=local,dest=dockercache
-
+      - name: Save docker build cache
+        uses: actions/cache/save@v4
+        with:
+          key: ${{ steps.restore-cache.outputs.cache-primary-key }}
       - name: Verify mediapipe docker image by building hello world example
         run: |
           docker run --name mediapipe mediapipe:latest GLOG_logtostderr=1 bazel run --define MEDIAPIPE_DISABLE_GPU=1 mediapipe/examples/desktop/hello_world
