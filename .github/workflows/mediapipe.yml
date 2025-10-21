@@ -56,13 +56,13 @@ jobs:
           key: ${{ steps.restore-cache.outputs.cache-primary-key }}
       - name: Verify mediapipe docker image by building hello world example
         run: |
-          docker run --name mediapipe mediapipe:latest GLOG_logtostderr=1 bazel run --define MEDIAPIPE_DISABLE_GPU=1 mediapipe/examples/desktop/hello_world
+          docker run --name mediapipe mediapipe GLOG_logtostderr=1 bazel run --define MEDIAPIPE_DISABLE_GPU=1 mediapipe/examples/desktop/hello_world
       - name: install android sdk / ndk in docker
         run: |
-          docker run --name mediapipe mediapipe:latest bash ./setup_android_sdk_and_ndk.sh
+          docker run --name mediapipe mediapipe bash ./setup_android_sdk_and_ndk.sh
       - name: Build an android example
         run: |
-          docker run --name mediapipe mediapipe:latest bazel build -c opt --config=android_arm64 mediapipe/examples/android/src/java/com/google/mediapipe/apps/objectdetectiongpu:objectdetectiongpu
+          docker run --name mediapipe mediapipe bazel build -c opt --config=android_arm64 mediapipe/examples/android/src/java/com/google/mediapipe/apps/objectdetectiongpu:objectdetectiongpu
 
 
 
