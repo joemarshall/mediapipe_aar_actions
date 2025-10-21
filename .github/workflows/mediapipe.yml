@@ -45,8 +45,8 @@ jobs:
           file: Dockerfile
           push: false
           load: true
-          cache-from: type=local,dest=dockercache
-          cache-to: type=local,src=dockercache
+          cache-from: type=local,src=dockercache
+          cache-to: type=local,dest=dockercache
 
       - name: Verify mediapipe docker image by building hello world example
         run: |
