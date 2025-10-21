@@ -18,9 +18,6 @@ jobs:
     steps:
       - name: Checkout code from this repository
         uses: actions/checkout@v4
-
-
-
       - name: Checkout mediapipe
         uses: actions/checkout@v4
         with:
@@ -29,9 +26,8 @@ jobs:
           path: 'mediapipe'
 
       - name: Get the mediapipe commmit hash
-        id: get_hash
+        id: get_mp_hash
         run: cd mediapipe && echo "VERSION=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
-
 
       - name: Retrieve docker layers 
         uses: actions/cache@v4
@@ -60,8 +56,12 @@ jobs:
       - name: Verify mediapipe docker image by building hello world example
         run: |
           docker run --name mediapipe mediapipe:latest GLOG_logtostderr=1 bazel run --define MEDIAPIPE_DISABLE_GPU=1 mediapipe/examples/desktop/hello_world
-#          docker run -it --name mediapipe mediapipe:latest 
-#      - name: Add aar target to docker
-#        run: |
+      - name: install android sdk / ndk in docker
+        run: |
+          docker run --name mediapipe mediapipe:latest bash ./setup_android_sdk_and_ndk.sh
+      - name: Build an android example
+        run: |
+          docker run --name mediapipe mediapipe:latest bazel build -c opt --config=android_arm64 mediapipe/examples/android/src/java/com/google/mediapipe/apps/objectdetectiongpu:objectdetectiongpu
+
 
 
