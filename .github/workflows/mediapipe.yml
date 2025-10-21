@@ -38,6 +38,8 @@ jobs:
           key: ${{ runner.os }}-mediapipe-docker-${{ steps.get_mp_hash.outputs.VERSION }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: network=host      
       - name: Make sure docker cache folder exists
         run: mkdir -p dockercache
       - name: Build mediapipe docker image
@@ -45,24 +47,24 @@ jobs:
         with:
           context: ./mediapipe
           file: mediapipe/Dockerfile
-          push: false
-          load: true
-          tag: mediapipe
+          push: true
+          tags: localhost:5000/name/mediapipe:latest
           cache-from: type=local,src=dockercache
           cache-to: type=local,dest=dockercache
       - name: Save docker build cache
         uses: actions/cache/save@v4
         with:
           key: ${{ steps.restore-cache.outputs.cache-primary-key }}
+          path: dockercache
       - name: Verify mediapipe docker image by building hello world example
         run: |
-          docker run --name mediapipe mediapipe GLOG_logtostderr=1 bazel run --define MEDIAPIPE_DISABLE_GPU=1 mediapipe/examples/desktop/hello_world
+          docker run --name mediapipe localhost:5000/name/mediapipe:latest GLOG_logtostderr=1 bazel run --define MEDIAPIPE_DISABLE_GPU=1 mediapipe/examples/desktop/hello_world
       - name: install android sdk / ndk in docker
         run: |
-          docker run --name mediapipe mediapipe bash ./setup_android_sdk_and_ndk.sh
+          docker run --name mediapipe localhost:5000/name/mediapipe:latest bash ./setup_android_sdk_and_ndk.sh
       - name: Build an android example
         run: |
-          docker run --name mediapipe mediapipe bazel build -c opt --config=android_arm64 mediapipe/examples/android/src/java/com/google/mediapipe/apps/objectdetectiongpu:objectdetectiongpu
+          docker run --name mediapipe localhost:5000/name/mediapipe:latest bazel build -c opt --config=android_arm64 mediapipe/examples/android/src/java/com/google/mediapipe/apps/objectdetectiongpu:objectdetectiongpu
 
 
 
