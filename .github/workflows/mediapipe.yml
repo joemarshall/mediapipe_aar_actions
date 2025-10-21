@@ -19,13 +19,6 @@ jobs:
       - name: Checkout code from this repository
         uses: actions/checkout@v4
 
-      - name: Retrieve docker layers and mediapipe source cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            dockercache
-            mediapipe
-          key: ${{ runner.os }}-mediapipe-docker-${{ steps.get_mp_hash.outputs.VERSION }}
 
 
       - name: Checkout mediapipe
@@ -35,12 +28,22 @@ jobs:
           repository: 'google/mediapipe'
           path: 'mediapipe'
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Get the mediapipe commmit hash
         id: get_hash
         run: cd mediapipe && echo "VERSION=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+
+
+      - name: Retrieve docker layers 
+        uses: actions/cache@v4
+        with:
+          path: |
+            dockercache
+          key: ${{ runner.os }}-mediapipe-docker-${{ steps.get_mp_hash.outputs.VERSION }}
+
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
 
       - name: Make sure docker cache folder exists
         run: mkdir -p dockercache
