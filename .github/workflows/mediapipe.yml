@@ -50,6 +50,7 @@ jobs:
           file: mediapipe/Dockerfile
           push: false
           load: true
+          tag: mediapipe
           cache-from: type=local,src=dockercache
           cache-to: type=local,dest=dockercache
 
