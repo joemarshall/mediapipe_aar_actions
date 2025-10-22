@@ -1,4 +1,5 @@
 
+
 name: Build mediapipe AAR
 
 # Triggers
@@ -10,10 +11,19 @@ on:
     tags:
       - '[0-9]+.[0-9]+.[0-9]+' # Push events to matching numeric semver tags, i.e., 1.0.0, 20.15.10
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
   build-image:
     name: Build mediapipe docker image
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write    
     steps:
       - name: Checkout code from this repository
         uses: actions/checkout@v4
@@ -26,7 +36,12 @@ jobs:
       - name: Get the mediapipe commmit hash
         id: get_mp_hash
         run: cd mediapipe && echo "VERSION=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
-
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Restore docker layer cache
         uses: actions/cache/restore@v4
         id: restore-cache
@@ -36,15 +51,17 @@ jobs:
           key: ${{ runner.os }}-mediapipe-docker-${{ steps.get_mp_hash.outputs.VERSION }}
       - name: Make sure docker cache folder exists
         run: mkdir -p dockercache
-      - name: Build docker image locally
-        run: |
-          cd mediapipe
-          docker build --tag=mediapipe . --cache-from type=local,src=dockercache --cache-to type=local,src=dockercache
-      - name: Save docker build cache
-        uses: actions/cache/save@v4
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
-          key: ${{ steps.restore-cache.outputs.cache-primary-key }}
-          path: dockercache
+          context: ./mediapipe
+          file: mediapipe/Dockerfile
+          push: true
+          load: true
+          tags: mediapipe
+          cache-from: type=local,src=dockercache
+          cache-to: type=local,dest=dockercache      
       - name: Verify mediapipe docker image by building hello world example
         run: |
           docker run --name mediapipe mediapipe:latest bash GLOG_logtostderr=1 bazel run --define MEDIAPIPE_DISABLE_GPU=1 mediapipe/examples/desktop/hello_world
