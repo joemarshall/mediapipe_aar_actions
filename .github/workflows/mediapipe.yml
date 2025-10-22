@@ -60,8 +60,8 @@ jobs:
           push: true
           load: false
           tags: mediapipe
-          cache-from: type=local,src=dockercache
-          cache-to: type=local,dest=dockercache      
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: Verify mediapipe docker image by building hello world example
         run: |
           docker run --name mediapipe mediapipe:latest bash GLOG_logtostderr=1 bazel run --define MEDIAPIPE_DISABLE_GPU=1 mediapipe/examples/desktop/hello_world
