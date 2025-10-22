@@ -14,11 +14,6 @@ jobs:
   build-image:
     name: Build mediapipe docker image
     runs-on: ubuntu-latest
-    services:
-      registry:
-        image: registry:3
-        ports:
-          - 5000:5000
     steps:
       - name: Checkout code from this repository
         uses: actions/checkout@v4
@@ -40,21 +35,12 @@ jobs:
           path: |
             dockercache
           key: ${{ runner.os }}-mediapipe-docker-${{ steps.get_mp_hash.outputs.VERSION }}
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          driver-opts: network=host      
       - name: Make sure docker cache folder exists
         run: mkdir -p dockercache
-      - name: Build mediapipe docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./mediapipe
-          file: mediapipe/Dockerfile
-          push: true
-          tags: localhost:5000/name/mediapipe:latest
-          cache-from: type=local,src=dockercache
-          cache-to: type=local,dest=dockercache
+      - name: Build docker image locally
+        run: |
+          cd mediapipe
+          docker build --tag=mediapipe . --cache-from type=local,src=dockercache --cache-to type=local,src=dockercache
       - name: Save docker build cache
         uses: actions/cache/save@v4
         with:
@@ -62,13 +48,13 @@ jobs:
           path: dockercache
       - name: Verify mediapipe docker image by building hello world example
         run: |
-          docker run --name mediapipe localhost:5000/name/mediapipe:latest bash "GLOG_logtostderr=1 bazel run --define MEDIAPIPE_DISABLE_GPU=1 mediapipe/examples/desktop/hello_world"
+          docker run --name mediapipe mediapipe:latest bash GLOG_logtostderr=1 bazel run --define MEDIAPIPE_DISABLE_GPU=1 mediapipe/examples/desktop/hello_world
       - name: install android sdk / ndk in docker
         run: |
-          docker run --name mediapipe localhost:5000/name/mediapipe:latest bash ./setup_android_sdk_and_ndk.sh
+          docker run --name mediapipe mediapipe:latest bash ./setup_android_sdk_and_ndk.sh
       - name: Build an android example
         run: |
-          docker run --name mediapipe localhost:5000/name/mediapipe:latest bash "bazel build -c opt --config=android_arm64 mediapipe/examples/android/src/java/com/google/mediapipe/apps/objectdetectiongpu:objectdetectiongpu"
+          docker run --name mediapipe mediapipe:latest bash bazel build -c opt --config=android_arm64 mediapipe/examples/android/src/java/com/google/mediapipe/apps/objectdetectiongpu:objectdetectiongpu
 
 
 
