@@ -63,7 +63,7 @@ jobs:
           cache-to: type=gha,mode=max
       - name: Verify mediapipe docker image by building hello world example
         run: |
-          docker run --name mediapipe ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} bash GLOG_logtostderr=1 bazel run --define MEDIAPIPE_DISABLE_GPU=1 mediapipe/examples/desktop/hello_world
+          docker run --name mediapipe $REGISTRY/$IMAGE_NAME bash GLOG_logtostderr=1 bazel run --define MEDIAPIPE_DISABLE_GPU=1 mediapipe/examples/desktop/hello_world
       - name: install android sdk / ndk in docker
         run: |
           docker run --name mediapipe mediapipe:latest bash ./setup_android_sdk_and_ndk.sh
