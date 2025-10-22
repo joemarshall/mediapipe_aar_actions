@@ -14,7 +14,11 @@ jobs:
   build-image:
     name: Build mediapipe docker image
     runs-on: ubuntu-latest
-
+    services:
+      registry:
+        image: registry:3
+        ports:
+          - 5000:5000
     steps:
       - name: Checkout code from this repository
         uses: actions/checkout@v4
