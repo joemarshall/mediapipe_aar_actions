@@ -23,7 +23,6 @@ jobs:
           fetch-depth: 0
           repository: 'google/mediapipe'
           path: 'mediapipe'
-
       - name: Get the mediapipe commmit hash
         id: get_mp_hash
         run: cd mediapipe && echo "VERSION=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
