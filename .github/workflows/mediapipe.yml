@@ -61,15 +61,18 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}          
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: pull image
+        run: |
+          docker pull $REGISTRY/$IMAGE_NAME:latest
       - name: Verify mediapipe docker image by building hello world example
         run: |
-          docker run --name mediapipe $REGISTRY/$IMAGE_NAME bash GLOG_logtostderr=1 bazel run --define MEDIAPIPE_DISABLE_GPU=1 mediapipe/examples/desktop/hello_world
+          docker run --name mediapipe mediapipe bash GLOG_logtostderr=1 bazel run --define MEDIAPIPE_DISABLE_GPU=1 mediapipe/examples/desktop/hello_world
       - name: install android sdk / ndk in docker
         run: |
-          docker run --name mediapipe mediapipe:latest bash ./setup_android_sdk_and_ndk.sh
+          docker run --name mediapipe mediapipe bash ./setup_android_sdk_and_ndk.sh
       - name: Build an android example
         run: |
-          docker run --name mediapipe mediapipe:latest bash bazel build -c opt --config=android_arm64 mediapipe/examples/android/src/java/com/google/mediapipe/apps/objectdetectiongpu:objectdetectiongpu
+          docker run --name mediapipe mediapipe bash bazel build -c opt --config=android_arm64 mediapipe/examples/android/src/java/com/google/mediapipe/apps/objectdetectiongpu:objectdetectiongpu
 
 
 
