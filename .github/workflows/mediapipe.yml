@@ -62,13 +62,13 @@ jobs:
           path: dockercache
       - name: Verify mediapipe docker image by building hello world example
         run: |
-          docker run --name mediapipe localhost:5000/name/mediapipe:latest GLOG_logtostderr=1 bazel run --define MEDIAPIPE_DISABLE_GPU=1 mediapipe/examples/desktop/hello_world
+          docker run --name mediapipe localhost:5000/name/mediapipe:latest bash "GLOG_logtostderr=1 bazel run --define MEDIAPIPE_DISABLE_GPU=1 mediapipe/examples/desktop/hello_world"
       - name: install android sdk / ndk in docker
         run: |
           docker run --name mediapipe localhost:5000/name/mediapipe:latest bash ./setup_android_sdk_and_ndk.sh
       - name: Build an android example
         run: |
-          docker run --name mediapipe localhost:5000/name/mediapipe:latest bazel build -c opt --config=android_arm64 mediapipe/examples/android/src/java/com/google/mediapipe/apps/objectdetectiongpu:objectdetectiongpu
+          docker run --name mediapipe localhost:5000/name/mediapipe:latest bash "bazel build -c opt --config=android_arm64 mediapipe/examples/android/src/java/com/google/mediapipe/apps/objectdetectiongpu:objectdetectiongpu"
 
 
 
