@@ -63,7 +63,7 @@ jobs:
           cache-to: type=gha,mode=max
       - name: pull image
         run: |
-          docker pull $REGISTRY/$IMAGE_NAME
+          docker pull $DOCKER_METADATA_OUTPUT_TAGS
       - name: Verify mediapipe docker image by building hello world example
         run: |
           docker run --name mediapipe mediapipe bash GLOG_logtostderr=1 bazel run --define MEDIAPIPE_DISABLE_GPU=1 mediapipe/examples/desktop/hello_world
