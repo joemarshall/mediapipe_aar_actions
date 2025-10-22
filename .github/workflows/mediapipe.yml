@@ -51,6 +51,8 @@ jobs:
           key: ${{ runner.os }}-mediapipe-docker-${{ steps.get_mp_hash.outputs.VERSION }}
       - name: Make sure docker cache folder exists
         run: mkdir -p dockercache
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3        
       - name: Build and push Docker image
         id: push
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
