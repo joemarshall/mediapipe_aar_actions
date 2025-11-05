@@ -87,11 +87,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: pull image
+        env: 
+          DOCKER_METADATA_OUTPUT_TAGS: ${{needs.build-image.outputs.DOCKER_METADATA_OUTPUT_TAGS}}
         run: |
-          docker pull ${{needs.build_image.outputs.DOCKER_METADATA_OUTPUT_TAGS}}
+          docker pull $DOCKER_METADATA_OUTPUT_TAGS
       - name: Start image container and leave running
+        env: 
+          DOCKER_METADATA_OUTPUT_TAGS: ${{needs.build-image.outputs.DOCKER_METADATA_OUTPUT_TAGS}}
         run: |
-          docker run --name mediapipe ${{needs.build_image.outputs.DOCKER_METADATA_OUTPUT_TAGS}} /bin/bash "echo Started; sleep infinity" &
+          docker run --name mediapipe $DOCKER_METADATA_OUTPUT_TAGS /bin/bash "echo Started; sleep infinity" &
       - name: Verify mediapipe docker image by building hello world example
         run: |
           docker exec mediapipe bash ./image_check.sh
