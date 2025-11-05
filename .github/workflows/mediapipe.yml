@@ -48,7 +48,12 @@ jobs:
         id: meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}        
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      - name: Copy our scripts into mediapipe root
+        run: |
+          cp image_check.sh mediapipe/
+          cp install_android.sh mediapipe/
+          cp build_android_example.sh mediapipe/
       - name: Build and push Docker image
         id: push
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
@@ -66,13 +71,13 @@ jobs:
           docker pull $DOCKER_METADATA_OUTPUT_TAGS
       - name: Verify mediapipe docker image by building hello world example
         run: |
-          docker run --name mediapipe $DOCKER_METADATA_OUTPUT_TAGS bash bazel run --define MEDIAPIPE_DISABLE_GPU=1 mediapipe/examples/desktop/hello_world
+          docker run --name mediapipe $DOCKER_METADATA_OUTPUT_TAGS bash .\image_check.sh
       - name: install android sdk / ndk in docker
         run: |
-          docker run --name mediapipe $DOCKER_METADATA_OUTPUT_TAGS bash ./setup_android_sdk_and_ndk.sh
+          docker run --name mediapipe $DOCKER_METADATA_OUTPUT_TAGS bash ./install_android.sh
       - name: Build an android example
         run: |
-          docker run --name mediapipe $DOCKER_METADATA_OUTPUT_TAGS bash bazel build -c opt --config=android_arm64 mediapipe/examples/android/src/java/com/google/mediapipe/apps/objectdetectiongpu:objectdetectiongpu
+          docker run --name mediapipe $DOCKER_METADATA_OUTPUT_TAGS bash ./build_android_example.sh
 
 
 
