@@ -89,9 +89,9 @@ jobs:
       - name: pull image
         run: |
           docker pull ${{needs.build_image.outputs.DOCKER_METADATA_OUTPUT_TAGS}}
-      - name: Start image
+      - name: Start image container and leave running
         run: |
-          docker run --name mediapipe ${{needs.build_image.outputs.DOCKER_METADATA_OUTPUT_TAGS}} echo "Started"
+          docker run --name mediapipe ${{needs.build_image.outputs.DOCKER_METADATA_OUTPUT_TAGS}} /bin/bash "echo Started; sleep infinity" &
       - name: Verify mediapipe docker image by building hello world example
         run: |
           docker exec mediapipe bash ./image_check.sh
