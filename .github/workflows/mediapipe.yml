@@ -71,7 +71,7 @@ jobs:
           docker pull $DOCKER_METADATA_OUTPUT_TAGS
       - name: Verify mediapipe docker image by building hello world example
         run: |
-          docker run --name mediapipe $DOCKER_METADATA_OUTPUT_TAGS bash .\image_check.sh
+          docker run --name mediapipe $DOCKER_METADATA_OUTPUT_TAGS bash ./image_check.sh
       - name: install android sdk / ndk in docker
         run: |
           docker run --name mediapipe $DOCKER_METADATA_OUTPUT_TAGS bash ./install_android.sh
