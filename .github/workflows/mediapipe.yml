@@ -95,7 +95,7 @@ jobs:
         env: 
           DOCKER_METADATA_OUTPUT_TAGS: ${{needs.build-image.outputs.DOCKER_METADATA_OUTPUT_TAGS}}
         run: |
-          docker run --name mediapipe $DOCKER_METADATA_OUTPUT_TAGS sleep infinity &
+          docker run --name mediapipe -d $DOCKER_METADATA_OUTPUT_TAGS sleep infinity
       - name: Verify mediapipe docker image by building hello world example
         run: |
           docker exec mediapipe bash ./image_check.sh
